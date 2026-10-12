@@ -7,7 +7,14 @@ public record Transaction(int step, TransactionType type, BigDecimal amount, Tra
 
     @Override
     public String toString() {
-        return "step: " + step + "\ntype: " + type + "\namount: " + amount + "\norigin: " + origin + "\nrecipient: "
-            + recipient + "\nisFraud: " + (isFraud ? "1" : "0") + "\nisFlaggedFraud: " + (isFlaggedFraud ? "1" : "0");
+        return "Transaction{" +
+                "step=" + step +
+                ", type=" + type +
+                ", amount=" + amount +
+                ", origin=" + origin +
+                ", recipient=" + recipient +
+                ", isFraud=" + isFraud +
+                ", isFlaggedFraud=" + isFlaggedFraud +
+                '}';
     }
 }

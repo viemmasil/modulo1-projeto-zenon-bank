@@ -6,6 +6,10 @@ public record TransactionCustomer(String name, BigDecimal oldBalance, BigDecimal
 
     @Override
     public String toString() {
-        return "name: " + name + ", oldBalance: " + oldBalance + ", newBalance: " + newBalance;
+        return "TransactionCustomer{" +
+                "name=" + name +
+                ", oldBalance=" + oldBalance +
+                ", newBalance=" + newBalance +
+                '}';
     }
 }
