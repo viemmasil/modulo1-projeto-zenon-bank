@@ -11,29 +11,37 @@ import java.util.List;
 
 public class TransactionIngestor {
 
-    private final List<Transaction> transactions = new ArrayList<>();
-
-    public TransactionIngestor(String fileName) {
+    public List<Transaction> readFile(String fileName) {
+        List<Transaction> transactions = new ArrayList<>();
         Path path = Paths.get(fileName);
         try (BufferedReader reader = new BufferedReader(new FileReader(path.toFile()))) {
             String line = reader.readLine(); // Reads first line to account for the header
             for (int i = 1; i <= 1000; i++) {
                 line = reader.readLine();
                 if (line != null) {
-                    String[] chunks = line.split(",");
-                    var transaction = new Transaction(Integer.parseInt(chunks[0]), TransactionType.valueOf(chunks[1]),
-                            new BigDecimal(chunks[2]), new TransactionCustomer(chunks[3], new BigDecimal(chunks[4]),
-                            new BigDecimal(chunks[5])), new TransactionCustomer(chunks[6], new BigDecimal(chunks[7]),
-                            new BigDecimal(chunks[8])), chunks[9].equals("1"), chunks[10].equals("1"));
+                    var transaction = extractTransaction(line);
                     transactions.add(transaction);
                 }
             }
         } catch (IOException e) {
             throw new RuntimeException("Failed to read the file.", e);
         }
-    }
-
-    public List<Transaction> getTransactions() {
         return transactions;
     }
+
+    private Transaction extractTransaction(String line) {
+        String[] chunks = line.split(",");
+        int step = Integer.parseInt(chunks[0]);
+        TransactionType type = TransactionType.valueOf(chunks[1]);
+        BigDecimal amount = new BigDecimal(chunks[2]);
+        TransactionCustomer origin = new TransactionCustomer(chunks[3], new BigDecimal(chunks[4]),
+                new BigDecimal(chunks[5]));
+        TransactionCustomer recipient = new TransactionCustomer(chunks[6], new BigDecimal(chunks[7]),
+                new BigDecimal(chunks[8]));
+        boolean isFraud = "1".equals(chunks[9]);
+        boolean isFlaggedFraud = "1".equals(chunks[10]);
+
+        return new Transaction(step, type, amount, origin, recipient, isFraud, isFlaggedFraud);
+    }
+
 }

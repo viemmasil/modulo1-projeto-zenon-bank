@@ -2,10 +2,12 @@ import br.com.zenon.fraud.TransactionIngestor;
 
 void main() {
 
-    var TransactionIngestor = new TransactionIngestor("data/kaggle_log.csv");
+    var transactionIngestor = new TransactionIngestor();
 
-    var transactions = TransactionIngestor.getTransactions();
-    for (int i = 0; i < 10; i++) {
-        IO.println(transactions.get(i));
-    }
+    long before = System.currentTimeMillis();
+    var transactions = transactionIngestor.readFile("data/kaggle_log.csv");
+    long after = System.currentTimeMillis();
+    IO.println(String.format("Time taken to read %d lines with IO approach: %d ms", transactions.size(),
+            (after - before)));
+    transactions.stream().limit(10).forEach(IO::println);
 }
