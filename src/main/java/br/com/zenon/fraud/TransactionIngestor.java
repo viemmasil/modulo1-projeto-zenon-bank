@@ -1,7 +1,5 @@
 package br.com.zenon.fraud;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
@@ -27,8 +25,8 @@ public class TransactionIngestor {
     }
 
     private Optional<Transaction> extractTransaction(String line) {
-        String[] chunks = line.split(",");
         try {
+            String[] chunks = line.split(",");
             int step = Integer.parseInt(chunks[0]);
             TransactionType type = TransactionType.valueOf(chunks[1]);
             BigDecimal amount = new BigDecimal(chunks[2]);
@@ -42,7 +40,7 @@ public class TransactionIngestor {
             return Optional.of(new Transaction(step, type, amount, origin, recipient, isFraud, isFlaggedFraud));
 
         } catch (Exception e) {
-            System.err.println("Error: " + line);
+            System.err.printf("Error: %s | %s: %s%n", line, e.getClass().getName(), e.getMessage());
             return Optional.empty();
         }
     }
