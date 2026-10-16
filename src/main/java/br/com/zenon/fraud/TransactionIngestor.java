@@ -1,8 +1,9 @@
 package br.com.zenon.fraud;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -14,10 +15,15 @@ public class TransactionIngestor {
     public List<Transaction> readFile(String fileName) {
         List<Transaction> transactions = new ArrayList<>();
         Path path = Paths.get(fileName);
-        try {
-            List<String> lines = Files.readAllLines(path);
-            lines.stream().skip(1).map(this::extractTransaction)
-                    .forEach(transaction -> transaction.ifPresent(transactions::add));
+        try (BufferedReader reader = new BufferedReader(new FileReader(path.toFile()))) {
+            String line = reader.readLine(); // Reads first line to account for the header
+            for (int i = 1; i <= 50_000; i++) {
+                line = reader.readLine();
+                if (line != null) {
+                    var transaction = extractTransaction(line);
+                    transaction.ifPresent(transactions::add);
+                }
+            }
         } catch (IOException e) {
             throw new RuntimeException("Failed to read the file.", e);
         }
