@@ -17,7 +17,7 @@ public class TransactionIngestor {
         Path path = Paths.get(fileName);
         try (BufferedReader reader = new BufferedReader(new FileReader(path.toFile()))) {
             String line = reader.readLine(); // Reads first line to account for the header
-            for (int i = 1; i <= 50_000; i++) {
+            for (int i = 1; i <= 100_000; i++) {
                 line = reader.readLine();
                 if (line != null) {
                     var transaction = extractTransaction(line);
