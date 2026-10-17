@@ -12,12 +12,12 @@ import java.util.Optional;
 
 public class TransactionIngestor {
 
-    public List<Transaction> readFile(String fileName) {
+    public List<Transaction> readFile(String fileName, int count) {
         List<Transaction> transactions = new ArrayList<>();
         Path path = Paths.get(fileName);
         try (BufferedReader reader = new BufferedReader(new FileReader(path.toFile()))) {
             String line = reader.readLine(); // Reads first line to account for the header
-            for (int i = 1; i <= 100_000; i++) {
+            for (int i = 1; i <= count; i++) {
                 line = reader.readLine();
                 if (line != null) {
                     var transaction = extractTransaction(line);

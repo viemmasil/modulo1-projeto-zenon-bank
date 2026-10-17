@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class FraudAnalyzer {
-    List<Transaction> transactions;
+    private final List<Transaction> transactions;
 
     public FraudAnalyzer(List<Transaction> transactions) {
         Objects.requireNonNull(transactions);
