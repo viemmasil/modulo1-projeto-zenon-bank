@@ -14,7 +14,7 @@ public class TransactionMapRepository implements TransactionRepository {
         Objects.requireNonNull(transactions);
         // transactions.forEach(txn -> mapTransactions.put(txn.origin().name(), txn));
         mapTransactions = transactions.stream().collect(Collectors.toMap(txn -> txn.origin().name(),
-                Function.identity()));
+                Function.identity(), (existingTxn, newTxn) -> newTxn));
     }
 
     @Override

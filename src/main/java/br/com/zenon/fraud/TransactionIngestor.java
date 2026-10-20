@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -20,10 +21,21 @@ public class TransactionIngestor {
             for (int i = 1; i <= count; i++) {
                 line = reader.readLine();
                 if (line != null) {
-                    var transaction = extractTransaction(line);
-                    transaction.ifPresent(transactions::add);
+                    extractTransaction(line).ifPresent(transactions::add);
                 }
             }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read the file.", e);
+        }
+        return transactions;
+    }
+
+    public List<Transaction> readFileNio2(String fileName) {
+        List<Transaction> transactions = new ArrayList<>();
+        Path path = Path.of(fileName);
+        try {
+            List<String> lines = Files.readAllLines(path);
+            lines.stream().skip(1).forEach(line -> extractTransaction(line).ifPresent(transactions::add));
         } catch (IOException e) {
             throw new RuntimeException("Failed to read the file.", e);
         }

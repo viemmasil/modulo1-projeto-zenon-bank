@@ -6,6 +6,7 @@ import br.com.zenon.fraud.TransactionMapRepository;
 void main() {
     var transactionIngestor = new TransactionIngestor();
     List<Transaction> transactions = transactionIngestor.readFile("data/kaggle_log.csv", 100_000);
+    // List<Transaction> transactions = transactionIngestor.readFileNio2("data/kaggle_log.csv");
 
     IO.println("------------------------------------------------");
     IO.println("------------------ Task 06 ---------------------");
