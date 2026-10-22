@@ -11,6 +11,10 @@ java {
     }
 }
 
+tasks.withType(Copy).configureEach {
+    filteringCharset = 'UTF-8'
+}
+
 repositories {
     mavenCentral()
 }
