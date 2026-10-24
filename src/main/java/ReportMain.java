@@ -3,7 +3,7 @@ import br.com.zenon.fraud.TransactionReport.Statistics;
 
 void main(String[] args) {
     System.setOut(new PrintStream(System.out, true, StandardCharsets.UTF_8));
-    Locale locale = Locale.getDefault();
+    var locale = Locale.getDefault();
 
     if (args.length > 0) {
         locale = switch (args[0]) {
@@ -12,17 +12,19 @@ void main(String[] args) {
             default -> Locale.getDefault();
         };
     }
-    ResourceBundle bundle = ResourceBundle.getBundle("ZenonResource", locale);
+    var bundle = ResourceBundle.getBundle("ZenonResource", locale);
     IO.println("%s: %s".formatted(bundle.getString("locale.using_locale"), locale));
-    NumberFormat numberFormat = NumberFormat.getCurrencyInstance(locale);
+    var intFormatter = NumberFormat.getIntegerInstance(locale);
+    var currencyFormatter = NumberFormat.getCurrencyInstance(locale);
+    currencyFormatter.setCurrency(Currency.getInstance("USD"));
 
-    TransactionReport transactionReport = new TransactionReport();
-    Statistics statistics = transactionReport.generateReport("data/kaggle_log.csv");
+    var transactionReport = new TransactionReport();
+    var statistics = transactionReport.generateReport("data/kaggle_log.csv");
     IO.println("""
-            %s: %d
-            %s: %d
             %s: %s
-            """.formatted(bundle.getString("report.total_lines"), statistics.totalTxn(),
-            bundle.getString("report.total_frauds"), statistics.totalFraud(),
-            bundle.getString("report.total_amount"), numberFormat.format(statistics.totalAmount())));
+            %s: %s
+            %s: %s
+            """.formatted(bundle.getString("report.total_lines"), intFormatter.format(statistics.totalTxn()),
+            bundle.getString("report.total_frauds"), intFormatter.format(statistics.totalFraud()),
+            bundle.getString("report.total_amount"), currencyFormatter.format(statistics.totalAmount())));
 }
