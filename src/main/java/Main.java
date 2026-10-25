@@ -15,7 +15,7 @@ void main() {
 
     List<String> originNames = List.of("C12345", "C1231006815");
     originNames.forEach(originName -> {
-        var opTxnList = txnListRepository.getTransactionByOriginName(originName);
+        var opTxnList = txnListRepository.findByOriginName(originName);
         opTxnList.ifPresentOrElse(IO::println,
                 () -> IO.println("No transactions found for the customer %s".formatted(originName)));
     });
@@ -23,7 +23,7 @@ void main() {
     String lastOriginName = "C1868032458";
 
     long startTime = System.nanoTime();
-    txnListRepository.getTransactionByOriginName(lastOriginName)
+    txnListRepository.findByOriginName(lastOriginName)
             .ifPresentOrElse(IO::println, () -> IO.println("No transactions found for the customer " + lastOriginName));
     long elapsedNanos = System.nanoTime() - startTime;
     IO.println("List: Took %d nanos (%f ms) to find the last origin name.".formatted(elapsedNanos,
@@ -32,7 +32,7 @@ void main() {
     IO.println("------------------------------------------------");
 
     startTime = System.nanoTime();
-    txnMapRepository.getTransactionByOriginName(lastOriginName)
+    txnMapRepository.findByOriginName(lastOriginName)
             .ifPresentOrElse(IO::println, () -> IO.println("No transactions found for the customer " + lastOriginName));
     elapsedNanos = System.nanoTime() - startTime;
     IO.println("Map.: Took %d nanos (%f ms) to find the last origin name.".formatted(elapsedNanos,

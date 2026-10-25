@@ -1,0 +1,18 @@
+name: zenon-bank
+
+services:
+  database:
+    container_name: zenon-bank-mysql
+    image: mysql:9
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword123}
+      MYSQL_DATABASE: zenon_bank
+      MYSQL_USER: zenon_user
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-userpassword123}
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql.zenon_bank:/var/lib/mysql
+volumes:
+  mysql.zenon_bank:
