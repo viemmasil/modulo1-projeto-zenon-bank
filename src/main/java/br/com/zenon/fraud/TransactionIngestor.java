@@ -35,14 +35,15 @@ public class TransactionIngestor {
         Path path = Path.of(fileName);
         try {
             List<String> lines = Files.readAllLines(path);
-            lines.stream().skip(1).forEach(line -> extractTransaction(line).ifPresent(transactions::add));
+            lines.stream().skip(1)
+                 .forEach(line -> extractTransaction(line).ifPresent(transactions::add));
         } catch (IOException e) {
             throw new RuntimeException("Failed to read the file.", e);
         }
         return transactions;
     }
 
-    private Optional<Transaction> extractTransaction(String line) {
+    public Optional<Transaction> extractTransaction(String line) {
         try {
             String[] chunks = line.split(",");
             int step = Integer.parseInt(chunks[0]);

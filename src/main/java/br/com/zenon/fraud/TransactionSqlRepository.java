@@ -1,7 +1,7 @@
 package br.com.zenon.fraud;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,9 +10,12 @@ import java.util.Optional;
 
 public class TransactionSqlRepository implements TransactionRepository {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/zenon_bank?rewriteBatchedStatements=true";
-    private static final String USER = "root";
-    private static final String PASSWORD = "rootpassword123";
+    private final DataSource dataSource;
+
+    public TransactionSqlRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     private static final String INSERT_SQL = """
              insert into transactions (step, transaction_type, amount, origin_name, origin_old_balance, origin_new_balance,
                                        recipient_name, recipient_old_balance, recipient_new_balance, is_fraud, is_flagged_fraud)
@@ -23,7 +26,7 @@ public class TransactionSqlRepository implements TransactionRepository {
     public Optional<Transaction> findByOriginName(String originName) {
         String query = "SELECT * FROM transactions WHERE origin_name = ?";
 
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, originName);
 
@@ -52,7 +55,7 @@ public class TransactionSqlRepository implements TransactionRepository {
     @Override
     public void save(Transaction txn) {
 
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection conn = dataSource.getConnection();
              PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
             mapStatement(stmt, txn);
             stmt.execute();
@@ -63,7 +66,7 @@ public class TransactionSqlRepository implements TransactionRepository {
     }
 
     public void saveInBatches(List<Transaction> transactions, int batchSize) {
-        try (Connection conn = DriverManager.getConnection(URL, USER, PASSWORD)) {
+        try (Connection conn = dataSource.getConnection()) {
             conn.setAutoCommit(false);
 
             try (PreparedStatement stmt = conn.prepareStatement(INSERT_SQL)) {
@@ -72,15 +75,16 @@ public class TransactionSqlRepository implements TransactionRepository {
                     mapStatement(stmt, txn);
                     stmt.addBatch();
 
-                    if (counter++ % batchSize == 0) {
+                    if (++counter % batchSize == 0) {
                         stmt.executeBatch();
+                        conn.commit();
                     }
                 }
                 // Process remaining records
-                if (counter % batchSize == 0) {
+                if (counter % batchSize != 0) {
                     stmt.executeBatch();
+                    conn.commit();
                 }
-                conn.commit();
 
             } catch (SQLException e) {
                 conn.rollback();

@@ -14,12 +14,12 @@ public class TransactionListRepository implements TransactionRepository {
 
     @Override
     public Optional<Transaction> findByOriginName(String name) {
-        return transactions.stream()
+        return this.transactions.stream()
                 .filter(txn -> txn.origin().name().equals(name)).findFirst();
     }
 
     @Override
     public void save(Transaction transaction) {
-        transactions.add(transaction);
+        this.transactions.add(transaction);
     }
 }
