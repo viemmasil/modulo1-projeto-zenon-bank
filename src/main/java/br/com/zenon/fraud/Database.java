@@ -19,8 +19,8 @@ public final class Database {
         config.setUsername("root");
         config.setPassword("rootpassword123");
         config.setPoolName("zenon-bank-mysql-pool");
-        config.setMaximumPoolSize(10);
-        config.setMinimumIdle(2);
+        config.setMaximumPoolSize(16);
+        config.setMinimumIdle(16);
         config.setConnectionTimeout(Duration.ofSeconds(10).toMillis());
         config.setIdleTimeout(Duration.ofMinutes(5).toMillis());
         config.setMaxLifetime(Duration.ofMinutes(30).toMillis());

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
@@ -14,7 +15,8 @@ public class EfficientTransactionIngestor extends TransactionIngestor {
 
     private static final int LIMIT = 10_000;
     private static final int BATCH = 2_000;
-    private static final int WORKERS = 10;
+
+    private final Semaphore dbPermits = new Semaphore(16);
 
     public void readAsStream(String fileName, Consumer<Transaction> consumer) {
         Path path = Path.of(fileName);
@@ -33,7 +35,7 @@ public class EfficientTransactionIngestor extends TransactionIngestor {
         Path path = Path.of(fileName);
         List<String> transactions = new ArrayList<>(BATCH);
 
-        try (var executor = Executors.newFixedThreadPool(WORKERS);
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor();
              Stream<String> lines = Files.lines(path).skip(1)) {
 
             var iterator = lines.iterator();
@@ -43,7 +45,6 @@ public class EfficientTransactionIngestor extends TransactionIngestor {
 
                 if (transactions.size() >= BATCH) {
                     final var currentBatch = List.copyOf(transactions);
-                    IO.println("Current Batch Processing: " + currentBatch.size());
                     executor.submit(() -> executeBatch(currentBatch, consumer));
                     transactions.clear();
                 }
@@ -65,6 +66,15 @@ public class EfficientTransactionIngestor extends TransactionIngestor {
                 .map(Optional::get)
                 .toList();
 
-        consumer.accept(transactions);
+        try {
+            dbPermits.acquire();
+            try {
+                consumer.accept(transactions);
+            } finally {
+                dbPermits.release();
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }
